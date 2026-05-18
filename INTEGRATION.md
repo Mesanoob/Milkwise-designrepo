@@ -28,6 +28,9 @@ You can't `npm install` this; pull a curated reference into `milkwise`:
    `python3 -m http.server` in this repo →
    `localhost:8000/ui_kits/website/index.html`. Toggle dark mode (sun/moon,
    top-right) and check every screen at mobile width — that's your reference.
+   Pre-captured pixel references (every page × light/dark × desktop/mobile,
+   plus clean hero-mesh plates) are in `design-reference/screens/` and
+   `design-reference/hero-mesh/` — see `design-reference/REFERENCE-IMAGES.md`.
 
 Re-pull when this repo changes; it's the upstream.
 
@@ -137,10 +140,12 @@ the page. Don't paraphrase the disclaimer/empathy lines.
 ## 6. Known fidelity risks — flag, don't silently drop
 
 - **Hero mesh** — biggest compromise. 6 stacked CSS gradients + per-layer
-  blend modes + vignette don't exist in RN. Recommended: pre-render the
-  prototype's mesh (light + dark) to a 2x PNG and ship as an asset (it's the
-  design's own mesh, not invented art). Fallbacks: `react-native-svg` radial
-  stack, then `expo-linear-gradient`. Anchor colors in `tokens.ts → heroMesh`.
+  blend modes + vignette don't exist in RN. Recommended: use the pre-rendered
+  plates already in `design-reference/hero-mesh/` (light + dark, the design's
+  own mesh — not invented art) as a background `Image`. Fallbacks:
+  `react-native-svg` radial stack, then `expo-linear-gradient`. Anchor colors
+  in `tokens.ts → heroMesh`; regenerate any size via
+  `ui_kits/website/_mesh.html`.
 - **Hover states** — no hover on touch. The brand's signature
   border→accent promote becomes a **press/selected** state. Keep `@media
   (hover:hover)` behavior only on web/PWA if cheap.

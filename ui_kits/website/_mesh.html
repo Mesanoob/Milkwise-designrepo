@@ -1,0 +1,16 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../colors_and_type.css" />
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%}
+  .plate{position:fixed;inset:0;overflow:hidden;background:var(--mw-bg)}
+  /* mirrors styles.css .mw-hero-mesh exactly */
+  .mw-hero-mesh{position:absolute;inset:0;background:var(--mw-mesh);background-blend-mode:var(--mw-mesh-blend);pointer-events:none}
+  .mw-hero-mesh::before{content:"";position:absolute;inset:0;background:var(--mw-mesh-vignette);pointer-events:none}
+  .mw-hero-mesh::after{content:"";position:absolute;inset:0;opacity:.10;mix-blend-mode:overlay;pointer-events:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.4  0 0 0 0 0.3  0 0 0 0 0.2  0 0 0 1.2 0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>")}
+  html[data-theme="dark"] .mw-hero-mesh::after{opacity:.06}
+</style>
+<script>
+  var t=new URLSearchParams(location.search).get('theme');
+  document.documentElement.setAttribute('data-theme', t==='dark'?'dark':'light');
+</script>
+</head><body><div class="plate"><div class="mw-hero-mesh"></div></div></body></html>
