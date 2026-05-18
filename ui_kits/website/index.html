@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MilkWise SG — UI Kit</title>
+<link rel="stylesheet" href="../../colors_and_type.css" />
+<link rel="stylesheet" href="styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react" src="atoms.jsx"></script>
+<script type="text/babel" data-presets="env,react" src="Chrome.jsx"></script>
+<script type="text/babel" data-presets="env,react" src="Home.jsx"></script>
+<script type="text/babel" data-presets="env,react" src="Compare.jsx"></script>
+<script type="text/babel" data-presets="env,react" src="HeadToHead.jsx"></script>
+<script type="text/babel" data-presets="env,react" src="Calculator.jsx"></script>
+<script type="text/babel" data-presets="env,react" src="Pages.jsx"></script>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect } = React;
+
+function App() {
+  const [page, setPage] = useState('home');
+  const [tray, setTray] = useState([]);
+  const [compareOpen, setCompareOpen] = useState(null);
+  const [bannerDismissed, setBannerDismissed] = useState(() => localStorage.getItem('mw_banner_dismissed') === '1');
+  const [formulas, setFormulas] = useState([]);
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('mw_theme');
+    if (saved === 'dark' || saved === 'light') return saved;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('mw_theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    fetch('../../data/formulas.json').then(r => r.json()).then(setFormulas).catch(() => setFormulas([]));
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [page, compareOpen]);
+
+  const navigate = (p) => { setCompareOpen(null); setPage(p); };
+  const dismiss = () => { localStorage.setItem('mw_banner_dismissed', '1'); setBannerDismissed(true); };
+  const openCompare = (products) => setCompareOpen(products);
+  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
+
+  return (
+    <div data-screen-label={`MilkWise · ${page}`}>
+      {!bannerDismissed && <DisclaimerBanner onDismiss={dismiss} />}
+      <NavBar active={page} onNav={navigate} theme={theme} onToggleTheme={toggleTheme} />
+
+      {compareOpen ? (
+        <HeadToHead
+          products={compareOpen}
+          onClose={() => setCompareOpen(null)}
+          onCalc={() => { setCompareOpen(null); setPage('calculator'); }}
+        />
+      ) : (
+        <>
+          {page === 'home' && <Home onNav={navigate} />}
+          {page === 'compare' && (
+            <Compare
+              formulas={formulas}
+              tray={tray}
+              setTray={setTray}
+              onOpenCompare={openCompare}
+            />
+          )}
+          {page === 'calculator' && <Calculator formulas={formulas} />}
+          {page === 'nutrition' && <NutritionGuide />}
+          {page === 'parents' && <ForNewParents />}
+          {page === 'about' && <About />}
+        </>
+      )}
+
+      <Footer onNav={navigate} />
+
+      {!compareOpen && page === 'compare' && (
+        <CompareTray
+          items={tray}
+          onRemove={(p) => setTray(tray.filter(x => x.product !== p.product))}
+          onOpen={() => openCompare(tray)}
+          onClear={() => setTray([])}
+        />
+      )}
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+
+</body>
+</html>
